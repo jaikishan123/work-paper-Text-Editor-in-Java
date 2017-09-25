@@ -1,11 +1,10 @@
 package gui;
 
+import java.io.*;
 import find.Find;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileReader;
-import java.util.Scanner;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -16,12 +15,16 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
 
-public class Gui implements ActionListener {
+
+public class Gui implements ActionListener{
+	
+	private JFrame frame;
 	private JMenuBar menuBar;
 	private JMenu menuFile, menuEdit, menuSearch;
 	private JMenuItem newFile, openFile, saveFile, saveAsFile , exit, cut, copy, paste, undo, redo, selectAll, search;
 	private JTextArea textArea;
-	
+	private File file;
+
 	
 	
 	
@@ -35,7 +38,7 @@ public class Gui implements ActionListener {
 	
 	public void go()
 	{
-		JFrame frame = new JFrame();
+		frame = new JFrame();
 		frame.setSize(500, 400);
 		frame.setTitle("SimpleTextEditor");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -52,16 +55,16 @@ public class Gui implements ActionListener {
 		
 		//openFile, saveFile, saveAsFile , Exit, cut, copy, paste, undo, redo, selectAll;
 		newFile = new JMenuItem("New");
-		newFile.addActionListener(this);
+		newFile.addActionListener(new NewFileListner());
 		
 		openFile = new JMenuItem("Open");
-		openFile.addActionListener(this);
+		openFile.addActionListener(new OpenFileListner());
 		
 		saveFile = new JMenuItem("Save");
-		saveFile.addActionListener(this);
+		saveFile.addActionListener(new SaveFileListner());
 		
 		saveAsFile = new JMenuItem("Save As...");
-		saveAsFile.addActionListener(this);
+		saveAsFile.addActionListener(new SaveAsFileListner());
 		
 		exit = new JMenuItem("Exit");
 		exit.addActionListener(this);
@@ -85,7 +88,8 @@ public class Gui implements ActionListener {
 		selectAll.addActionListener(this);
 		
 		search = new JMenuItem("Search...");
-		search.addActionListener(this);
+		search.addActionListener(new SearchFileListener());
+		
 		
 		menuFile.add(newFile);
 		menuFile.add(openFile);
@@ -121,46 +125,142 @@ public class Gui implements ActionListener {
 		frame.setVisible(true);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if(e.getSource()==openFile)
-		{
-			
-			JFileChooser open = new JFileChooser(); // open up a file chooser (a dialog for the user to  browse files to open)
-            int option = open.showOpenDialog(openFile); // get the option that the user selected (approve or cancel)
-
-            /*
-             * NOTE: because we are OPENing a file, we call showOpenDialog~ if
-             * the user clicked OK, we have "APPROVE_OPTION" so we want to open
-             * the file
-             */
-            if (option == JFileChooser.APPROVE_OPTION) {
-                 // clear the TextArea before applying the file contents
-                try {
-                    // create a scanner to read the file (getSelectedFile().getPath() will get the path to the file)
-                    
-					@SuppressWarnings("resource")
-					Scanner scan = new Scanner(new FileReader(open.getSelectedFile().getPath()));
-                    while (scan.hasNext()) // while there's still something to
-                                            // read
-                        textArea.append(scan.nextLine() + "\n"); // append the line to the TextArea
-                } catch (Exception ex) { // catch any exceptions, and...
-                    // ...write to the debug console
-                    System.out.println(ex.getMessage());
-                }
-            }
-        }
-			
+	public void actionPerformed(ActionEvent e)
+	{
 		
-		if(e.getSource()==search)
-		{
-		new Find(textArea);	
+	}
+	
+	
+	public class NewFileListner implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			textArea.setText("");
+			file=null;
 		}
+		
+	
+		
+	}
+	
+	public class OpenFileListner implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
 			
+			JFileChooser fileOpen = new JFileChooser();
+			int option=fileOpen.showOpenDialog(frame);
+			
+			if(option==JFileChooser.APPROVE_OPTION)
+			{
+				
+			loadFile(fileOpen.getSelectedFile());
+			file=fileOpen.getSelectedFile();
+			
+			}
 		}
 		
 		
 	}
 
+	public class SaveFileListner implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			if(file!=null)
+			{
+				writeFile(file);
+			}
+			else
+			{
+				SaveAsFileListner save = new SaveAsFileListner();
+				save.actionPerformed(e);
+			}
+		}
+
+		
+	}
 	
+	public class SaveAsFileListner implements ActionListener
+	{
+	
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			
+			JFileChooser fileSave = new JFileChooser();
+			int option=fileSave.showSaveDialog(frame);
+			
+			if(option==JFileChooser.APPROVE_OPTION)
+			{
+				writeFile(fileSave.getSelectedFile());
+			    file=fileSave.getSelectedFile();	
+			}
+			
+		}
+	}
+	
+	public class SearchFileListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			new Find(textArea);
+		}
+		
+	}
+	public void loadFile(File file)
+	{
+		
+	try
+	{
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		textArea.setText("");
+		
+		String line = null;
+		
+		while( (line=reader.readLine()) !=null)
+		{
+	      
+			textArea.append(line);
+			textArea.append("\n");
+			
+		}
+		reader.close();
+	}
+	
+	catch (Exception e) 
+	{
+		// TODO: handle exception
+		e.printStackTrace();
+		
+	}	
+	
+	
+	}
+	
+	
+	public void writeFile(File file)
+	{
+		
+		try
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+			writer.write(textArea.getText());
+			writer.close();
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			
+			e.printStackTrace();
+		}
+		
+	}
+	
+}
