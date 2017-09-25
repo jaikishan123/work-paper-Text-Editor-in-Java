@@ -13,6 +13,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.JSeparator;
 
 
 
@@ -24,6 +26,8 @@ public class Gui implements ActionListener{
 	private JMenuItem newFile, openFile, saveFile, saveAsFile , exit, cut, copy, paste, undo, redo, selectAll, search;
 	private JTextArea textArea;
 	private File file;
+	private JSeparator separator;
+	private JSeparator separator_1;
 
 	
 	
@@ -69,14 +73,13 @@ public class Gui implements ActionListener{
 		exit = new JMenuItem("Exit");
 		exit.addActionListener(this);
 		
-		cut = new JMenuItem("Cut");
-		cut.addActionListener(this);
+		cut = new JMenuItem(new DefaultEditorKit.CutAction());
 		
-		copy = new JMenuItem("Copy");
-		copy.addActionListener(this);
+	
+		copy = new JMenuItem(new DefaultEditorKit.CopyAction());
 		
-		paste = new JMenuItem("Paste");
-		paste.addActionListener(this);
+		paste = new JMenuItem(new DefaultEditorKit.PasteAction());
+		
 		
 		undo = new JMenuItem("Undo");
 		undo.addActionListener(this);
@@ -99,9 +102,15 @@ public class Gui implements ActionListener{
 		
 		menuEdit.add(undo);
 		menuEdit.add(redo);
+		
+		separator = new JSeparator();
+		menuEdit.add(separator);
 		menuEdit.add(cut);
 		menuEdit.add(copy);
 		menuEdit.add(paste);
+		
+		separator_1 = new JSeparator();
+		menuEdit.add(separator_1);
 		menuEdit.add(selectAll);
 		
 		menuSearch.add(search);
@@ -127,7 +136,15 @@ public class Gui implements ActionListener{
 
 	public void actionPerformed(ActionEvent e)
 	{
+		if(e.getSource()==selectAll)
+		{
+			textArea.selectAll();
+		}
 		
+		else if(e.getSource()==exit)
+		{
+			frame.dispose();
+		}
 	}
 	
 	
