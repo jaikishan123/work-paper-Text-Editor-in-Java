@@ -35,6 +35,7 @@ public class Find implements ActionListener{
 		buttonFind.setBounds(280, 10, 138, 23);
 		buttonFind.addActionListener(this);
 		frame.getContentPane().add(buttonFind);
+        
 		
 		buttonFindNext = new JButton("Find next");
 		buttonFindNext.setBounds(280, 44, 138, 23);
@@ -51,7 +52,16 @@ public class Find implements ActionListener{
 		int h[]=new int[pattern.length()];
 		int i=2;
 		int j=0;
+		
+		if(pattern.length()>1)
 		h[0]=h[1]=0;
+		
+		else if (pattern.length() > 0)
+		{
+			h[0]=0;
+			return h;
+		}
+		
 		for(i=2;i<h.length;)
 		{
 			if(pattern.charAt(i-1)==pattern.charAt(j))
@@ -170,6 +180,7 @@ public class Find implements ActionListener{
 			
 			if(index!=-1)
 			{
+				
 			startIndex = index;
 			endIndex = startIndex + textField.getText().length();
 			textArea.select(startIndex, endIndex);
