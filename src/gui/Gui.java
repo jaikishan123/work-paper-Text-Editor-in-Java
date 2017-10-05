@@ -5,6 +5,8 @@ import find.Find;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -14,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.undo.UndoManager;
 import javax.swing.JSeparator;
 
 
@@ -28,6 +31,7 @@ public class Gui implements ActionListener{
 	private File file;
 	private JSeparator separator;
 	private JSeparator separator_1;
+	private UndoManager undoManager;
 
 	
 	
@@ -128,9 +132,13 @@ public class Gui implements ActionListener{
 		JScrollPane scroller = new JScrollPane(textArea);
 		scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		
-		
 		frame.getContentPane().add(scroller);
+		
+		undoManager=new UndoManager();
+		
+		textArea.getDocument().addUndoableEditListener(undoManager);
+		
+		
 		frame.setVisible(true);
 	}
 
@@ -144,6 +152,22 @@ public class Gui implements ActionListener{
 		else if(e.getSource()==exit)
 		{
 			frame.dispose();
+		}
+		
+		else if(e.getSource()==undo)
+		{
+			if(undoManager.canUndo())
+				undoManager.undo();
+			
+		}
+		
+		else if(e.getSource()==redo)
+		{
+			
+			if(undoManager.canRedo())
+			{
+				undoManager.redo();
+			}
 		}
 	}
 	
